@@ -3,8 +3,11 @@ import requests
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from pandas import DataFrame as df
 import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+from pandas import DataFrame as df
+
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -84,8 +87,61 @@ layout = go.Layout(
     ]
 )
 
+layout2 = go.Layout(
+    title={
+        'text': "Przypadki koronawirusa na świecie",
+        'y':0.95,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'},
+    xaxis_title="Data",
+    yaxis_title="Suma potwierdzonych przypadków",
+    plot_bgcolor = colors['background'],
+    paper_bgcolor = colors['background'],
+    font=dict(
+        family="Courier New, monospace",
+        size=14,
+        color=colors['text']
+    )
+)
+
 data = [map_confirmed]
 fig = go.Figure(data = data, layout=layout)
+
+coviddata = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/ecdc/full_data.csv')
+table = pd.pivot_table(coviddata, values='total_cases', index='date', columns=['location'])
+table = table.fillna(0).astype(int)
+
+"""
+fig2 = px.line(table, x=table.index, y='World')
+fig2.update_layout(
+    title={
+        'text': "Przypadki koronawirusa na świecie",
+        'y':0.95,
+        'x':0.5,
+        'xanchor': 'center',
+        'yanchor': 'top'},
+    xaxis_title="Data",
+    yaxis_title="Suma potwierdzonych przypadków",
+    plot_bgcolor = colors['background'],
+    paper_bgcolor = colors['background'],
+    font=dict(
+        family="Courier New, monospace",
+        size=14,
+        color=colors['text']
+    )
+)
+"""
+
+fdata  =  go.Scatter(
+              x = table.index,
+              y = table.World,
+              orientation='h',
+              line=dict(color='firebrick', width=5)
+        )
+
+fig2 = go.Figure(data=fdata, layout=layout2)
+
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
@@ -108,22 +164,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
             dcc.Graph(id='g1', figure=fig)
         ], className="six columns"),
         html.Div([
-            dcc.Graph(
-            id='example-graph-2',
-            figure={
-                'data': [
-                    {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
-                    {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
-                ],
-                'layout': {
-                    'plot_bgcolor': colors['background'],
-                    'paper_bgcolor': colors['background'],
-                    'font': {
-                        'color': colors['text']
-                    }
-                }
-            }
-         )], className="six columns"),
+            dcc.Graph(id='g2', figure=fig2)
+        ], className="six columns"),
 
     ], className="row")
 ])
