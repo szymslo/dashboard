@@ -13,7 +13,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 colors = {
     'background': '#111111',
-    'text': '#d41002'
+    'text': '#006eff'
 }
 
 r = requests.get('https://coronavirus-tracker-api.herokuapp.com/v2/locations')
@@ -88,12 +88,6 @@ layout = go.Layout(
 )
 
 layout2 = go.Layout(
-    title={
-        'text': "Przypadki koronawirusa na świecie",
-        'y':0.95,
-        'x':0.5,
-        'xanchor': 'center',
-        'yanchor': 'top'},
     xaxis_title="Data",
     yaxis_title="Suma potwierdzonych przypadków",
     plot_bgcolor = colors['background'],
@@ -137,7 +131,7 @@ fdata  =  go.Scatter(
               x = table.index,
               y = table.World,
               orientation='h',
-              line=dict(color='firebrick', width=5)
+              line=dict(color='red', width=4)
         )
 
 fig2 = go.Figure(data=fdata, layout=layout2)
@@ -150,13 +144,15 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         children='COVID-19 Dashboard',
         style={
             'textAlign': 'center',
-            'color': colors['text']
+            'color': colors['text'],
+            'font-family': 'Courier New, monospace'
         }
     ),
 
     html.Div(children='Interaktywna analiza danych dotyczących koronawirusa na świecie', style={
         'textAlign': 'center',
-        'color': colors['text']
+        'color': colors['text'],
+        'font-family': 'Courier New, monospace'
     }),
 
     html.Div([
@@ -166,7 +162,23 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         html.Div([
             dcc.Graph(id='g2', figure=fig2)
         ], className="six columns"),
+    ], className="row"),
 
+    html.Div([
+        html.Div([
+            dcc.Dropdown(id='dropdown1', options=[
+                {'label': i, 'value': i} for i in table.columns], 
+                multi=True, placeholder='Wybierz kraj...',
+                style = {"background-color":colors['background']}),
+            dcc.Graph(id='total')
+        ], className="six columns"),
+        html.Div([
+            dcc.Dropdown(id='dropdown2', options=[
+                {'label': i, 'value': i} for i in table.columns], 
+                multi=True, placeholder='Wybierz kraj...',
+                style = {"background-color":colors['background']}),
+            dcc.Graph(id='daily')
+        ], className="six columns"),
     ], className="row")
 ])
 
