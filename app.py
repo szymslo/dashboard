@@ -120,6 +120,7 @@ coviddata = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/ma
 table = pd.pivot_table(coviddata, values='total_cases', index='date', columns=['location'])
 table = table.fillna(0).astype(int)
 coviddata.set_index('date', inplace=True)
+coviddata.rename(columns={'new_cases':'Przypadki'}, inplace=True)
 
 """
 fig2 = px.line(table, x=table.index, y='World')
@@ -275,14 +276,15 @@ def update_figure(country):
 def update_figure(country):
     if not country:
         raise PreventUpdate
-    filtered = coviddata.new_cases[coviddata.location == country]
+    filtered = coviddata.Przypadki[coviddata.location == country]
     fig4  =  px.bar(
         filtered,
         x = filtered.index,
         y = filtered.values,
-        color='new_cases',
-        labels={'new_cases':'Przypadki'}
-        )
+        color='Przypadki',
+        hover_data={'Przypadki':False},
+        labels={'x':'Data','y':'Nowe przypadki'},
+    )
     fig4.update_layout(
     xaxis_title="Data",
     yaxis_title="Liczba nowych dziennych przypadków",
@@ -295,8 +297,6 @@ def update_figure(country):
         )
     )
     return fig4
-
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
